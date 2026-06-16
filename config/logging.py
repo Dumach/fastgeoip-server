@@ -1,3 +1,7 @@
+import os
+
+os.makedirs("logs", exist_ok=True)
+
 log_config = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -10,7 +14,7 @@ log_config = {
         },
         "access": {
             "()": "uvicorn.logging.AccessFormatter",
-            "fmt": '%(asctime)s - %(levelprefix)s %(client_addr)s - "%(request_line)s" %(status_code)s',
+            "fmt": '%(asctime)s - %(levelprefix)s %(client_addr)s - "%(request_line)s" %(status_code)s',  # noqa: E501
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
     },
@@ -25,16 +29,26 @@ log_config = {
             "class": "logging.StreamHandler",
             "stream": "ext://sys.stdout",
         },
-        "file":
-        {
+        "file": {
             "formatter": "default",
-            "class": "logging.FileHandler",
-            "filename": "access.log",
-        }
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "logs/access.log",
+            "maxBytes": 1_048_576, # 1 MB
+            "backupCount": 5,  
+            "encoding": "utf-8",
+        },
     },
     "loggers": {
-        "uvicorn": {"handlers": ["default","file"], "level": "INFO", "propagate": False},
+        "uvicorn": {
+            "handlers": ["default", "file"],
+            "level": "INFO",
+            "propagate": False,
+        },
         "uvicorn.error": {"level": "INFO"},
-        "uvicorn.access": {"handlers": ["access"], "level": "INFO", "propagate": False},
+        "uvicorn.access": {
+            "handlers": ["access", "file"],
+            "level": "INFO",
+            "propagate": False,
+        },
     },
 }

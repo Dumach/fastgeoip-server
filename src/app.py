@@ -1,19 +1,28 @@
 from ipaddress import ip_address
+import logging
 
 from anyio import Path
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 import geoip2.database
 
-from main import DEBUG, ACCESS_KEY
+from main import ProductionMode, mode, ACCESS_KEYS
 
-app = FastAPI()
+app = FastAPI(title="geoip")
+logger = logging.getLogger("uvicorn.default")
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 DB_PATH = Path(".") / "db" / "GeoLite2-City.mmdb"
 
 
 @app.middleware("auth")
-async def auth(request: Request, call_next):
-    if request.headers.get("X-API-KEY") != ACCESS_KEY:
+async def auth_middleware(request: Request, call_next):
+    if request.headers.get("X-API-KEY") not in ACCESS_KEYS:
         return JSONResponse({"detail": "Not found"}, status_code=404)
 
     response = await call_next(request)
@@ -22,8 +31,8 @@ async def auth(request: Request, call_next):
 
 def get_ip_header(request: Request) -> str:
     ip = request.client.host if request.client else ""
-    if DEBUG:
-        ip = request.headers.get("Host") or ""
+    if mode != ProductionMode.PROD:
+        ip = request.headers.get("Host") or ip
 
     return ip
 
@@ -37,8 +46,10 @@ def validate_ip(IP: str) -> str:
             return False
 
     if not validIPAddress(IP):
-        return """IPv4 or IPv6 address is in an incorrect format.
-            Dotted decimal for IPv4 or textual representation for IPv6 are required."""
+        return (
+            "IPv4 or IPv6 address is in an incorrect format."
+            + "Dotted decimal for IPv4 or textual representation for IPv6 are required."
+        )
     ip_addr = ip_address(IP)
     if ip_addr.is_link_local or ip_addr.is_loopback:
         return "You are on localhost"
@@ -64,8 +75,9 @@ def lookup_ip_address(IP: str):
 
 
 @app.get("/")
+@limiter.limit("5/minute")
 def get_myip(request: Request):
-    ip = get_ip_header(request)
+    ip = get_ip_header(request).strip()
 
     error = validate_ip(ip)
     if error != "":
@@ -76,7 +88,9 @@ def get_myip(request: Request):
 
 
 @app.get("/geolookup")
-def get_geolookup(ip: str):
+@limiter.limit("60/minute")
+def get_geolookup(request: Request, ip: str):
+    ip = ip.strip()
     error = validate_ip(ip)
     if error != "":
         return JSONResponse({"detail": error})
