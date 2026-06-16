@@ -7,8 +7,8 @@ PartOf=fastgeoip-server.service
 
 [Socket]
 ListenStream=/var/run/uvicorn/uvicorn.sock
-SocketUser=www-data
-SocketGroup=www-data
+SocketUser=alex
+SocketGroup=alex
 SocketMode=0660
 
 [Install]

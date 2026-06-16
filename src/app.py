@@ -66,7 +66,7 @@ def lookup_ip_address(IP: str):
         "geoInfo": {
             "countryCode": response.country.iso_code,
             "country": response.country.name,
-            "county": response.subdivisions.most_specific.name or "",
+            "region": response.subdivisions.most_specific.name or "",
             "city": response.city.name or "",
         },
         "ipAddress": IP,
