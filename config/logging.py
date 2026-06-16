@@ -1,7 +1,3 @@
-import os
-
-os.makedirs("logs", exist_ok=True)
-
 log_config = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -16,6 +12,7 @@ log_config = {
             "()": "uvicorn.logging.AccessFormatter",
             "fmt": '%(asctime)s - %(levelprefix)s %(client_addr)s - "%(request_line)s" %(status_code)s',  # noqa: E501
             "datefmt": "%Y-%m-%d %H:%M:%S",
+            "use_colors": False,
         },
     },
     "handlers": {
