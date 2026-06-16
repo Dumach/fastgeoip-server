@@ -1,0 +1,15 @@
+# /etc/systemd/system/fastgeoip-server.socket
+# Systemd socket file for socket activation
+
+[Unit]
+Description=FastGeoIp Socket
+PartOf=fastgeoip-server.service
+
+[Socket]
+ListenStream=/var/run/uvicorn/uvicorn.sock
+SocketUser=www-data
+SocketGroup=www-data
+SocketMode=0660
+
+[Install]
+WantedBy=sockets.target
