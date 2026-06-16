@@ -42,6 +42,8 @@ def validate_ip(IP: str) -> str:
     ip_addr = ip_address(IP)
     if ip_addr.is_link_local or ip_addr.is_loopback:
         return "You are on localhost"
+    if ip_addr.is_private:
+        return "You are on a private network"
 
     return ""
 
