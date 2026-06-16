@@ -1,12 +1,33 @@
 [project]
 name = "fastgeoip-server"
-version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
-requires-python = ">=3.12"
+version = "0.1.1"
 dependencies = [
-    "fastapi>=0.137.1",
+    "fastapi>=0.136.3",
     "geoip2>=5.2.0",
     "python-dotenv>=1.2.2",
     "uvicorn>=0.49.0",
 ]
+requires-python = ">=3.12"
+license = "Apache-2.0"
+authors = [{ name = "Alex Nagy" }]
+readme = "README.md"
+description = "Fastapi based geopIP server, results based on GeoLite2-City dataset"
+keywords = ["fastapi", "geoip"]
+classifiers = [
+   "Development Status :: 4 - Beta" 
+]
+
+[tool.uv]
+exclude-newer = "7 days"
+
+[tool.ruff.lint]
+select = ["E", "F"]
+ignore = ["F401"]
+
+[build-system]
+requires = ["uv_build >= 0.11.21, <0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "src"
+module-root = ""
