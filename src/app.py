@@ -48,7 +48,7 @@ def validate_ip(IP: str) -> str:
     if not validIPAddress(IP):
         return (
             "IPv4 or IPv6 address is in an incorrect format."
-            + "Dotted decimal for IPv4 or textual representation for IPv6 are required."
+            + " You sent: " + IP
         )
     ip_addr = ip_address(IP)
     if ip_addr.is_link_local or ip_addr.is_loopback:
