@@ -23,7 +23,7 @@ DB_PATH = Path(".") / "db" / "GeoLite2-City.mmdb"
 @app.middleware("auth")
 async def auth_middleware(request: Request, call_next):
     if request.headers.get("X-API-KEY") not in ACCESS_KEYS:
-        return JSONResponse({"detail": "Not found"}, status_code=404)
+        return JSONResponse({"detail": "Not authorized"}, status_code=403)
 
     response = await call_next(request)
     return response
@@ -63,13 +63,11 @@ def lookup_ip_address(IP: str):
     reader = geoip2.database.Reader(DB_PATH)
     response = reader.city(IP)
     result = {
-        "geoInfo": {
-            "countryCode": response.country.iso_code,
-            "country": response.country.name,
-            "region": response.subdivisions.most_specific.name or "",
-            "city": response.city.name or "",
-        },
-        "ipAddress": IP,
+        "country_code": response.country.iso_code,
+        "country_name": response.country.name,
+        "region_name": response.subdivisions.most_specific.name or "",
+        "city": response.city.name or "",
+        "ip": IP,
     }
     return result
 
@@ -84,7 +82,7 @@ def get_myip(request: Request):
         return JSONResponse({"detail": error})
 
     result = lookup_ip_address(ip)
-    return JSONResponse({"detail": "success", "result": result})
+    return JSONResponse(result)
 
 
 @app.get("/geolookup")
@@ -96,4 +94,4 @@ def get_geolookup(request: Request, ip: str):
         return JSONResponse({"detail": error})
 
     result = lookup_ip_address(ip)
-    return JSONResponse({"detail": "success", "result": result})
+    return JSONResponse(result)
