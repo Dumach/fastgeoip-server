@@ -14,6 +14,8 @@ class ProductionMode(Enum):
     DEBUG = 2
     PROD = 3
 
+def get_workers(mode: ProductionMode):
+    return (multiprocessing.cpu_count() * 2) + 1 if mode == ProductionMode.PROD else 1
 
 env = os.environ.get("ENVIRONMENT", "PROD").strip().lower()
 mode: ProductionMode = ProductionMode.PROD
@@ -47,7 +49,7 @@ if __name__ == "__main__":
         reload=mode == ProductionMode.DEV,
         ssl_certfile=SSL_CERT,
         ssl_keyfile=SSL_KEY,
-        workers=(multiprocessing.cpu_count() * 2) + 1,
+        workers=get_workers(mode),
         proxy_headers=True,  # Trust X-Forwarded headers from reverse proxy
         forwarded_allow_ips="*",  # Allow forwarded headers from any IP
     )
