@@ -1,5 +1,6 @@
 from ipaddress import ip_address
 import logging
+import re
 
 from anyio import Path
 from fastapi import FastAPI, Request
@@ -31,25 +32,28 @@ async def auth_middleware(request: Request, call_next):
 
 def get_ip_header(request: Request) -> str:
     ip = request.client.host if request.client else ""
+    if not validIPAddress(ip):
+        ip = request.headers.get("X_REAL_IP", "")
+    elif not validIPAddress(ip):
+        ip = request.headers.get("HTTP_X_FORWARDED_FOR", "")
+
     if mode != ProductionMode.PROD:
         ip = request.headers.get("Host") or ip
 
     return ip
 
 
-def validate_ip(IP: str) -> str:
-    def validIPAddress(IP: str) -> bool:
-        try:
-            type(ip_address(IP))
-            return True
-        except ValueError:
-            return False
+def validIPAddress(IP: str) -> bool:
+    try:
+        type(ip_address(IP))
+        return True
+    except ValueError:
+        return False
 
+
+def validate_ip(IP: str) -> str:
     if not validIPAddress(IP):
-        return (
-            "IPv4 or IPv6 address is in an incorrect format."
-            + " You sent: " + IP
-        )
+        return "IPv4 or IPv6 address is in an incorrect format." + " You sent: " + IP
     ip_addr = ip_address(IP)
     if ip_addr.is_link_local or ip_addr.is_loopback:
         return "You are on localhost"
