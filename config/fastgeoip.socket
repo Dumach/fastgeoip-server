@@ -3,7 +3,7 @@
 
 [Unit]
 Description=FastGeoIp Socket
-PartOf=fastgeoip-server.service
+PartOf=fastgeoip.service
 
 [Socket]
 ListenStream=/var/run/uvicorn/uvicorn.sock

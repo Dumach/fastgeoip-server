@@ -1,4 +1,4 @@
-# /etc/systemd/system/fastgeoip-server.service
+# /etc/systemd/system/fastgeoip.service
 # Systemd service file for Uvicorn with Gunicorn
 
 [Unit]
@@ -10,7 +10,7 @@ Wants=network-online.target
 Type=simple
 User=alex
 Group=alex
-WorkingDirectory=/home/alex/fastgeoip-server
+WorkingDirectory=/home/alex/fastgeoip
 
 # Run Gunicorn with Uvicorn workers
 Environment="PATH=/usr/local/bin:/usr/bin:/bin"
