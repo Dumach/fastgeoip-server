@@ -1,5 +1,6 @@
 from enum import Enum
 import multiprocessing
+from pathlib import Path
 
 import uvicorn
 import os
@@ -7,7 +8,7 @@ from dotenv import load_dotenv
 from config.logging import log_config
 
 load_dotenv()
-
+Path("./logs").mkdir(parents=True, exist_ok=True)
 
 class ProductionMode(Enum):
     DEV = 1
