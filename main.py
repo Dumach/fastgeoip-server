@@ -8,13 +8,16 @@ from config.logging import log_config
 
 load_dotenv()
 
+
 class ProductionMode(Enum):
     DEV = 1
     DEBUG = 2
     PROD = 3
 
+
 def get_workers(mode: ProductionMode):
     return (multiprocessing.cpu_count() * 2) + 1 if mode == ProductionMode.PROD else 1
+
 
 env = os.environ.get("ENVIRONMENT", "PROD").strip().lower()
 mode: ProductionMode = ProductionMode.PROD
@@ -31,7 +34,9 @@ PORT = int(os.environ.get("PORT", 8080))
 
 SSL_CERT = os.environ.get("SSL_CERT")
 SSL_KEY = os.environ.get("SSL_KEY")
-ACCESS_KEYS = os.environ.get("ACCESS_KEY", "").strip().split(",")
+ACCESS_KEYS = [
+    k.strip() for k in os.environ.get("ACCESS_KEY", "").split(",") if k.strip()
+]
 
 
 log_level = "info"
