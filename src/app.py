@@ -22,7 +22,11 @@ DB_PATH = Path(".") / "db" / "GeoLite2-City.mmdb"
 
 @app.middleware("auth")
 async def auth_middleware(request: Request, call_next):
-    if request.headers.get("X-API-KEY") not in ACCESS_KEYS:
+    api_key = request.headers.get("X-API-KEY")
+    if api_key not in ACCESS_KEYS:
+        logger.info(
+            f"{get_ip_header(request)} - Wrong access key: {api_key}"
+        )
         return JSONResponse({"detail": "Not authorized"}, status_code=403)
 
     response = await call_next(request)
