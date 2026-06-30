@@ -12,7 +12,7 @@ import geoip2.database
 
 from main import ProductionMode, mode, ACCESS_KEYS
 
-app = FastAPI(title="geoip")
+app = FastAPI(title="geoip", docs_url=None, redoc_url=None)
 logger = logging.getLogger("uvicorn.default")
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
@@ -76,7 +76,7 @@ def lookup_ip_address(IP: str):
     return result
 
 
-@app.get("/")
+@app.get("/geoip/")
 @limiter.limit("5/minute")
 def get_myip(request: Request):
     ip = get_ip_header(request).strip()
@@ -89,7 +89,7 @@ def get_myip(request: Request):
     return JSONResponse(result)
 
 
-@app.get("/geolookup")
+@app.get("/geoip/geolookup")
 @limiter.limit("60/minute")
 def get_geolookup(request: Request, ip: str):
     ip = ip.strip()
