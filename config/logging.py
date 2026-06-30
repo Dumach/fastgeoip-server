@@ -1,3 +1,11 @@
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
+LOG_PATH = os.environ.get("LOG_PATH", "./logs")
+Path(LOG_PATH).mkdir(parents=True, exist_ok=True)
+
 log_config = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -29,7 +37,7 @@ log_config = {
         "file": {
             "formatter": "default",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": "logs/access.log",
+            "filename": LOG_PATH + "/access.log",
             "maxBytes": 1_048_576, # 1 MB
             "backupCount": 5,  
             "encoding": "utf-8",

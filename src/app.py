@@ -1,6 +1,5 @@
 from ipaddress import ip_address
 import logging
-import re
 
 from anyio import Path
 from fastapi import FastAPI, Request
